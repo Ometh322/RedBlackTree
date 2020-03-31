@@ -11,6 +11,29 @@ struct RBTree
 	RBTree* parent;
 };
 
+RBTree* node(int x)//начальный узел
+{
+	RBTree* n = new RBTree;
+	n->inf = x;
+	n->left = n->right = NULL;
+	n->parent = NULL;
+	n->color = 'r';
+}
+
+void insert(RBTree* tr, int x)
+{
+	RBTree* n = node(x);
+	if (!tr)
+	{
+		tr = n;
+		insert_case1(tr);
+	}
+	else
+	{
+		
+	}
+}
+
 RBTree* grandparent(RBTree* n) //функция определения дедушки текущего элемента
 {
 	if ((n != NULL) && (n->parent != NULL))
@@ -77,6 +100,19 @@ void insert_case4(RBTree* n)// 4 случай вставки, кгда родитель - красный, а дяда
 	insert_case5(n);
 }
 
+void insert_case5(RBTree* n)//родитель - красный, дядя - черный
+{
+	RBTree* g = grandparent(n);
+	n->parent->color = 'b'; //родитель - черный
+	g->color = 'r';//цвет деда - красный
+	if ((n == n->parent->left) && (n->parent == g->left)) //если n - левый ребенок и родитель - левый ребенок деда
+	{
+		rotate_right(g); //делаем правый поворот относительно деда
+	}
+	else //иначе делаем левый поворото относительно деда
+		rotate_left(g);
+}
+
 void rotate_left(RBTree* n) //поворот влево
 {
 	RBTree* pivot = n->right; //стержень - правый ребенок n
@@ -114,5 +150,17 @@ void rotate_right(RBTree* n) //поворот вправо
 }
 
 int main() {
-	
+	int n;
+	cout << "Введите кол-во элементов: ";
+	cin >> n;
+	cout << endl;
+
+	RBTree* tr = NULL;
+
+	for (int i = 0; i < n; i++)
+	{
+		int x;
+		cin >> x;
+		insert(tr, x);
+	}
 }
