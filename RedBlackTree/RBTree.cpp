@@ -254,6 +254,7 @@ RBTree* Prev(RBTree* tr, int x) //поиск предыдущего
 	return y;
 }
 
+
 RBTree* sibling(RBTree* n)//нахождение брата
 {
 	if (n == n->parent->left)
@@ -271,9 +272,116 @@ void replace_node(RBTree*& n, RBTree*& child) //замена узла
 		n->parent->right = child;
 }
 
+void delete_case1(RBTree*& n);
+
+void delete_case6(RBTree*& n)// S — чёрный, правый потомок S — красный, и N является левым потомком своего отца P
+{
+	// В этом случае мы вращаем дерево влево вокруг P, после чего S становится отцом P и своего правого потомка.
+	//Далее мы меняем местами цвета у P и S (P принимает цвет S, S принимает цвет P), и делаем правого потомка S чёрным.
+	RBTree* s = sibling(n);
+	s->color = n->parent->color;
+	n->parent->color = 'b';
+
+	if (n == n->parent->left)
+	{
+		s->right->color = 'b';
+		rotate_left(n->parent);
+	}
+	else
+	{
+		s->left->color = 'b';
+		rotate_right(n->parent);
+	}
+}
+
+void delete_case5(RBTree*& n) //S - черный, левый потомок S - красный, правый потомок S - черный, и N - левый потомок своего родителя
+{
+	// В этом случае мы вращаем дерево вправо вокруг S. Таким образом левый потомок S становится его отцом и новым братом N. После этого мы меняем цвета у S и его нового отца.
+	RBTree* s = sibling(n);
+
+	if (s->color == 'b')
+	{
+		if ((n == n->parent->left) && ((s->right == NULL) || (s->right->color == 'b')) && (s->left->color == 'r'))
+		{
+			s->color = 'r';
+			s->left->color = 'b';
+			rotate_right(s);
+		}
+		else if ((n == n->parent->right) && ((s->left == NULL) || (s->left->color == 'b')) && (s->right->color == 'r'))
+		{
+			s->color = 'r';
+			s->right->color = 'b';
+			rotate_left(s);
+		}
+	}
+	delete_case6(n);
+}
+
+void delete_case4(RBTree*& n)//S и его дети - черные, но P - красный, мы просто меняем цвета S и P
+{
+	RBTree* s = sibling(n);
+
+	if ((n->parent->color == 'r') && (s->color == 'b') && ((s->left == NULL) || (s->left->color == 'b')) && ((s->right == NULL) || (s->right->color == 'b')))
+	{
+		s->color = 'r';
+		n->parent->color = 'b';
+	}
+	else
+		delete_case5(n);
+}
+
+void delete_case3(RBTree*& n) //случай 3, P, S и дети S - черные, тогда мы просто перекрашиваем s в красный
+{
+	RBTree* s = sibling(n);
+	if ((n->parent->color == 'b') && (s->color == 'b') && ((s->left == NULL) || (s->left->color == 'b')) && ((s->right == NULL) || (s->right->color == 'b')))
+	{
+		s->color = 'r';
+		delete_case1(n->parent);
+	}
+	else
+		delete_case4(n);
+}
+
+void delete_case2(RBTree*& n)//S(брат) - красный, мы меняем цвета P и S, делаем вращение вокруг P, делая S - дедушкой N
+{
+	RBTree* s = sibling(n);
+	if (s->color == 'r')
+	{
+		n->parent->color = 'r';
+		s->color = 'b';
+		if (n == n->parent->left)
+			rotate_left(n->parent);
+		else
+			rotate_right(n->parent);
+	}
+	delete_case3(n);
+}
+
+void delete_case1(RBTree*& n)//1 случай, n - новый корень, тогда все ок, ничего делать не надо
+{
+	if (n->parent != NULL) //но если не корень, то
+		delete_case2(n);
+}
+
+
 void delete_one_child(RBTree*& n) //удаление одного ребенка
 {
 	//n имеет не более одного ненулевого потомка
+	RBTree* child;
+	if (n->right == NULL)
+		child = n->left;
+	else
+		child = n->right;
+
+	replace_node(n, child);
+	if (n->color == 'b')
+	{
+		if (child->color == 'r')
+			child->color = 'b';
+		else
+			delete_case1(child);
+	}
+	delete(n);
 }
 
 void print(RBTree* tr, int k) { //печать красивого дерева
@@ -342,4 +450,21 @@ int main() {
 	cout << endl;
 	int k = int(log((float)n) / log((float)2.0));
 	print(tr, k);
+	cout << endl << endl;
+
+	cout << "Введите удаляемый элемент: ";
+	int del_elem;
+	cin >> del_elem;
+	cout << endl;
+
+	RBTree* del_node = NULL;
+	del_node = find(tr, del_elem);
+	delete_one_child(del_node);
+
+	cout << endl;
+	cout << endl;
+	cout << endl;
+	k = int(log((float)n) / log((float)2.0));
+	print(tr, k);
+	cout << endl << endl;
 }
