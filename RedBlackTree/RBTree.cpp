@@ -3,7 +3,7 @@
 
 using namespace std;
 
-class RBTree {
+class RBTree { //класс дерева
 public:
 	int inf;
 	char color;
@@ -11,7 +11,6 @@ public:
 	RBTree* right;
 	RBTree* parent;
 };
-
 
 
 RBTree* grandparent(RBTree* n) //функция определения дедушки текущего элемента
@@ -73,7 +72,6 @@ void insert_case1(RBTree*& n);
 
 void insert_case5(RBTree*& n)//родитель - красный, дядя - черный
 {
-
 	RBTree* g = grandparent(n);
 	n->parent->color = 'b'; //родитель - черный
 	g->color = 'r';//цвет деда - красный
@@ -87,7 +85,6 @@ void insert_case5(RBTree*& n)//родитель - красный, дядя - черный
 
 void insert_case4(RBTree*& n)// 4 случай вставки, кгда родитель - красный, а дяда - черный
 {
-	
 	RBTree* g = grandparent(n);
 
 	if ((n == n->parent->right) && (n->parent == g->left)) //если n - правый ребенок, и его родитель - левый ребенок деда
@@ -105,7 +102,6 @@ void insert_case4(RBTree*& n)// 4 случай вставки, кгда родитель - красный, а дяд
 
 void insert_case3(RBTree*& n)//3 случай вставки, когда родитель и дядя - красные 
 {
-	
 	RBTree* u = uncle(n), *g;
 	if ((u != NULL) && (u->color == 'r')) //если дядя красный
 	{
@@ -121,7 +117,6 @@ void insert_case3(RBTree*& n)//3 случай вставки, когда родитель и дядя - красные
 
 void insert_case2(RBTree*& n) //2 случай вставки, если предок нашего элемента - черный
 {
-
 	if (n->parent->color == 'b')
 		return; //все ок
 	else
@@ -220,10 +215,9 @@ RBTree* Min(RBTree* tr)//поиск минимума
 
 RBTree* Max(RBTree* tr)//поиск максимума
 {
-	if (!tr->right)
-		return tr;
-	else
-		return Min(tr->right);
+	while (!tr->right)
+		tr = tr->right;
+	return tr;
 }
 
 RBTree* Next(RBTree* tr, int x) //поиск следующего
@@ -265,6 +259,7 @@ RBTree* sibling(RBTree* n)//нахождение брата
 
 void replace_node(RBTree*& n, RBTree*& child) //замена узла
 {
+	cout << "replace_node, " << n->inf << endl;
 	child->parent = n->parent;
 	if (n == n->parent->left)
 		n->parent->left = child;
@@ -359,6 +354,7 @@ void delete_case2(RBTree*& n)//S(брат) - красный, мы меняем цвета P и S, делаем 
 
 void delete_case1(RBTree*& n)//1 случай, n - новый корень, тогда все ок, ничего делать не надо
 {
+
 	if (n->parent != NULL) //но если не корень, то
 		delete_case2(n);
 }
@@ -367,10 +363,10 @@ void delete_case1(RBTree*& n)//1 случай, n - новый корень, тогда все ок, ничего 
 void delete_one_child(RBTree*& n) //удаление одного ребенка
 {
 	//n имеет не более одного ненулевого потомка
-	RBTree* child;
+	RBTree* child = NULL;
 	if (n->right == NULL)
 		child = n->left;
-	else
+	else if (n->left == NULL)
 		child = n->right;
 
 	replace_node(n, child);
@@ -381,7 +377,7 @@ void delete_one_child(RBTree*& n) //удаление одного ребенка
 		else
 			delete_case1(child);
 	}
-	delete(n);
+	delete n;
 }
 
 void print(RBTree* tr, int k) { //печать красивого дерева
@@ -425,6 +421,214 @@ void print(RBTree* tr, int k) { //печать красивого дерева
 	}
 }
 
+void Delete(RBTree*& tr, RBTree* n)
+{
+	RBTree* p = n->parent;
+	if (!p && !n->left && !n->right) //Дерево содержит один узел
+		tr = NULL;
+	else if (!n->left && !n->right) //нет детей у узла
+	{
+		if (n->color == 'r')
+		{
+			if (p->left == n)
+				p->left = NULL;
+			if (p->right == n)
+				p->right = NULL;
+			delete n;
+		}
+		else if (n->color == 'b')
+		{
+			delete_case1(n);
+			if (p->left == n)
+				p->left = NULL;
+			if (p->right == n)
+				p->right = NULL;
+			delete n;
+		}
+	}
+	else if (!n->left || !n->right) //когда один ребенок
+	{
+		if (!p) //удаление корня с один ребенком
+		{
+			if (!n->left) //если существует правый ребенок
+			{
+				n->right->color = 'b';
+				tr = n->right;
+				n->right->parent = NULL;
+			}
+			else
+			{
+				n->left->color = 'b';
+				tr = n->right;
+				n->left->parent = NULL;
+			}
+		}
+		else//если не корень
+		{
+			if (!n->left) //если наш ребенок справа
+			{
+				if (p->left == n) //если мы левый ребенок сами
+				{
+					if (n->color == 'b')
+					{
+						if (n->right->color == 'r')
+							n->right->color == 'b';
+						else
+							delete_case1(n->right);
+					}
+					p->left = n->right;
+				}
+				else //если мы правый ребенок сами
+				{
+					if (n->color == 'b')
+					{
+						if (n->right->color == 'r')
+							n->right->color == 'b';
+						else
+							delete_case1(n->right);
+					}
+					p->right = n->right;
+				}
+				n->right->parent = p;
+			}
+			else //если наш ребенок слева
+			{
+				if (p->left == n) //если мы левый ребенок сами
+				{
+					if (n->color == 'b')
+					{
+						if (n->left->color == 'r')
+							n->left->color == 'b';
+						else
+							delete_case1(n->left);
+					}
+					p->left = n->left;
+				}
+				else //если мы правый ребенок сами
+				{
+					if (n->color == 'b')
+					{
+						if (n->left->color == 'r')
+							n->left->color == 'b';
+						else
+							delete_case1(n->left);
+					}
+					p->right = n->left;
+				}
+				n->left->parent = p;
+			}
+			delete n;
+		}
+	}
+	else//существует 2 ребенка
+	{
+		RBTree* succ = Next(tr, n->inf);
+		n->inf = succ->inf;
+
+		if (!succ->left && !succ->right) //нет детей у узла
+		{
+			if (succ->color == 'r')
+			{
+				if (succ->parent->left == succ)
+					succ->parent->left = NULL;
+				if (succ->parent->right == succ)
+					succ->parent->right = NULL;
+				delete succ;
+			}
+			else if (succ->color == 'b')
+			{
+				delete_case1(succ);
+				if (succ->parent->left == succ)
+					succ->parent->left = NULL;
+				if (succ->parent->right == succ)
+					succ->parent->right = NULL;
+				delete succ;
+			}
+		}
+		else if (!succ->left || !succ->right) //когда один ребенок
+		{
+			if (!succ->parent) //удаление корня с один ребенком
+			{
+				if (!succ->left) //если существует правый ребенок
+				{
+					succ->right->color = 'b';
+					tr = succ->right;
+					succ->right->parent = NULL;
+				}
+				else
+				{
+					succ->left->color = 'b';
+					tr = succ->right;
+					succ->left->parent = NULL;
+				}
+			}
+			else//если не корень
+			{
+				if (!succ->left) //если наш ребенок справа
+				{
+					if (succ->parent->left == succ) //если мы левый ребенок сами
+					{
+						if (succ->color == 'b')
+						{
+							if (succ->right->color == 'r')
+								succ->right->color == 'b';
+							else
+								delete_case1(succ->right);
+						}
+						succ->parent->left = succ->right;
+					}
+					else //если мы правый ребенок сами
+					{
+						if (succ->color == 'b')
+						{
+							if (succ->right->color == 'r')
+								succ->right->color == 'b';
+							else
+								delete_case1(succ->right);
+						}
+						succ->parent->right = succ->right;
+					}
+					succ->right->parent = succ->parent;
+				}
+				else //если наш ребенок слева
+				{
+					if (succ->parent->left == succ) //если мы левый ребенок сами
+					{
+						if (succ->color == 'b')
+						{
+							if (succ->left->color == 'r')
+								succ->left->color == 'b';
+							else
+								delete_case1(succ->left);
+						}
+						succ->parent->left = succ->left;
+					}
+					else //если мы правый ребенок сами
+					{
+						if (succ->color == 'b')
+						{
+							if (succ->left->color == 'r')
+								succ->left->color == 'b';
+							else
+								delete_case1(succ->left);
+						}
+						succ->parent->right = succ->left;
+					}
+					succ->left->parent = succ->parent;
+				}
+				delete succ;
+			}
+		}
+	}
+		
+
+	if (tr)
+	{
+		while (tr->parent)
+			tr = tr->parent;
+	}
+}
+
 
 int main() {
 	setlocale(LC_ALL, "RUS");
@@ -434,37 +638,70 @@ int main() {
 	cout << endl;
 
 	RBTree* tr = NULL;
-
+	cout << "Введите элементы " << endl;
 	for (int i = 0; i < n; i++)
 	{
 		int x;
 		cin >> x;
 		insert(tr, x);
 	}
-	if (tr)
-		inorder(tr);
-	else
-		cout << "Упс" << endl;
 	cout << endl;
 	cout << endl;
-	cout << endl;
+	cout << "Корень - " << tr->inf << endl;
 	int k = int(log((float)n) / log((float)2.0));
 	print(tr, k);
 	cout << endl << endl;
+	int Case = 1;
+	cout << "Что делаем дальше?\n1.Добавить еще элемент\n2.Удалить элемент\n3.Вывести дерево\n4.Закончить" << endl;
+	cin >> Case;
+	while ((Case == 1) || (Case == 2) || (Case == 3))
+	{
+		if (Case == 1)
+		{
+			cout << "Введите необходимый элемент: ";
+			int x;
+			cin >> x;
+			cout << endl;
+			insert(tr, x);
+			k = int(log((float)n) / log((float)2.0));
+			print(tr, k);
+			cout << endl << endl;
+		}
+		else if (Case == 2)
+		{
+			cout << "Введите удаляемый элемент: ";
+			int del_elem;
+			cin >> del_elem;
+			cout << endl;
+			RBTree* del_node = NULL;
+			del_node = find(tr, del_elem);
 
-	cout << "Введите удаляемый элемент: ";
-	int del_elem;
-	cin >> del_elem;
-	cout << endl;
-
-	RBTree* del_node = NULL;
-	del_node = find(tr, del_elem);
-	delete_one_child(del_node);
-
-	cout << endl;
-	cout << endl;
-	cout << endl;
+			if (del_node)
+			{
+				Delete(tr, del_node);
+				k = int(log((float)n) / log((float)2.0));
+				print(tr, k);
+				cout << endl << endl;
+			}
+			else
+			{
+				cout << "Такого элемента нет" << endl;
+			}
+		}
+		else if (Case == 3)
+		{
+			cout << tr->inf << " является корнем" << endl;
+			k = int(log((float)n) / log((float)2.0));
+			print(tr, k);
+			cout << endl << endl;
+		}
+		cout << "Что делаем дальше?\n1.Добавить еще элемент\n2.Удалить элемент\n3.Вывести дерево\n4.Закончить" << endl;
+		cin >> Case;
+	}
+	
 	k = int(log((float)n) / log((float)2.0));
 	print(tr, k);
 	cout << endl << endl;
+	cout << "Симметричный обход дерева" << endl;
+	inorder(tr);
 }

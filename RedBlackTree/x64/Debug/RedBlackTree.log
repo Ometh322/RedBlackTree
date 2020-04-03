@@ -1,3 +1,11 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(467,5): warning MSB8028: промежуточный каталог (x64\Debug\) содержит файлы, которые используются совместно с другим проектом (RedBlackTree.vcxproj).  Это может привести к ошибкам очистки и перестроения.
   RBTree.cpp
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(475,24): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(486,24): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(501,23): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(512,23): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(574,28): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(585,28): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(600,27): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+C:\Users\danch\source\repos\RBTree\RedBlackTree\RBTree.cpp(611,27): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
   RedBlackTree.vcxproj -> C:\Users\danch\source\repos\RBTree\x64\Debug\RBTree.exe
